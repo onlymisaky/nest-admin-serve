@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "vscode-icons-team.vscode-icons",
+    "redjue.git-commit-plugin",
+    "dbaeumer.vscode-eslint",
+  ],
+  "unwantedRecommendations": [
+    "esbenp.prettier-vscode"
+  ],
+}
