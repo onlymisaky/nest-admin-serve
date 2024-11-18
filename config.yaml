@@ -1,0 +1,16 @@
+# 为什么使用yaml配置文件而不用.env文件？
+# 支持嵌套，支持类型，更清晰，更简洁
+
+server:
+  port: 3000
+
+mysql:
+  host: 'localhost'
+  port: 3306
+  user: 'root'
+  password: '12345678'
+  database: 'nest_admin'
+  logging: true
+  poolSize: 10
+  synchronize: true
+  connectorPackage: 'mysql2'
