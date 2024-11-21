@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 
 export class Res {
@@ -6,9 +6,7 @@ export class Res {
     const status = response.statusCode;
     response.status(HttpStatus.OK);
 
-    if (data instanceof Blob) {
-      return data;
-    }
+    // TODO: 其他类型
 
     return {
       success: true,
@@ -16,6 +14,23 @@ export class Res {
       data,
       timestamp: new Date().getTime(),
     };
+  }
+
+  private static isValidationPipeException(exception: HttpException | any) {
+    if (!(exception instanceof BadRequestException)) {
+      return false;
+    }
+    const response = exception.getResponse();
+    if (typeof response !== 'object' || !('message' in response)) {
+      return false;
+    }
+    if (!Array.isArray(response.message)) {
+      return false;
+    }
+    if (!exception.stack.includes('ValidationPipe.exceptionFactory')) {
+      return false;
+    }
+    return true;
   }
 
   static error(
@@ -26,7 +41,8 @@ export class Res {
     data?: any,
   ) {
     const status = exception.getStatus ? exception.getStatus() : response.statusCode;
-    const message = msg || exception.message || '服务器错误';
+    const isValidationPipeException = this.isValidationPipeException(exception);
+    const message = isValidationPipeException ? '请求参数错误' : msg || exception.message || '服务器错误';
     response.status(HttpStatus.OK).json({
       success: false,
       status,
@@ -38,7 +54,7 @@ export class Res {
         params: request.params,
         query: request.query,
       },
-      data,
+      data: isValidationPipeException ? exception.getResponse().message : data,
       timestamp: new Date().getTime(),
     });
   }
