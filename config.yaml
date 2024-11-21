@@ -14,3 +14,9 @@ mysql:
   poolSize: 10
   synchronize: true
   connectorPackage: 'mysql2'
+
+jwt:
+  global: true
+  secret: nest_admin
+  expiresIn: 1h
+

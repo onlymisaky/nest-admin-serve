@@ -1,9 +1,15 @@
+import * as crypto from 'node:crypto';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SafeRepository } from '../decorators/safe-repository.decorator';
+import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User } from './entities/user.entity';
+
+function md5(str: string) {
+  return crypto.createHash('md5').update(str).digest('hex');
+}
 
 @Injectable()
 export class UserService {
@@ -19,7 +25,7 @@ export class UserService {
     const user = new User();
     user.username = registerUserDto.username;
     user.nickName = registerUserDto.nickName;
-    user.password = registerUserDto.password;
+    user.password = md5(registerUserDto.password);
     user.email = registerUserDto.email;
 
     const existUser = await this.userRepository.findOne({ where: { username: user.username } });
@@ -29,7 +35,22 @@ export class UserService {
     }
 
     const newUser = await this.userRepository.save(user);
-    delete newUser.password;
+
     return newUser;
+  }
+
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: loginUserDto.username,
+        password: md5(loginUserDto.password),
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('用户名或密码错误', HttpStatus.UNAUTHORIZED);
+    }
+
+    return user;
   }
 }
