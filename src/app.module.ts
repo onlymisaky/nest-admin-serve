@@ -5,9 +5,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { getConfig, getDefaultConfig } from './config/configuration';
+import { CheckKitModule } from './check-kit/check-kit.module';
+import { CheckKitService } from './check-kit/check-kit.service';
+import { getConfig, getDefaultConfig, getEnv } from './config/configuration';
 import { LoginGuard } from './guards/login.guard';
-import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -18,19 +19,24 @@ import { UserModule } from './user/user.module';
       load: [getDefaultConfig, getConfig],
     }),
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      inject: [ConfigService, CheckKitService],
+      // @ts-expect-error @ts-ignore
+      useFactory: async (configService: ConfigService, checkKitService: CheckKitService) => {
+        const mysqlCheck = await checkKitService.checkMysql();
         return {
-          type: 'mysql',
-          entities: [User],
+          type: mysqlCheck ? 'mysql' : 'sqlite',
+          entities: [
+            // eslint-disable-next-line node/no-path-concat
+            `${__dirname}/**/*.entity{.ts,.js}`,
+          ],
           host: configService.get('mysql.host'),
           port: configService.get('mysql.port'),
           username: configService.get('mysql.user'),
           password: configService.get('mysql.password'),
-          database: configService.get('mysql.database'),
+          database: configService.get('mysql.database') + (mysqlCheck ? '' : '.db'),
           logging: configService.get('mysql.logging'),
           poolSize: configService.get('mysql.poolSize'),
-          synchronize: configService.get('mysql.synchronize'),
+          synchronize: getEnv() === 'production' ? true : configService.get('mysql.synchronize'),
           connectorPackage: configService.get('mysql.connectorPackage'),
         };
       },
@@ -48,6 +54,7 @@ import { UserModule } from './user/user.module';
         };
       },
     }),
+    CheckKitModule,
     UserModule,
   ],
   controllers: [AppController],
