@@ -3,12 +3,12 @@ import * as path from 'node:path';
 import * as process from 'node:process';
 import * as yaml from 'js-yaml';
 
-export function getEnv() {
+export function getEnv(): 'development' | 'production' | '' {
   let env = process.env.ENVIRONMENT;
   if (!['development', 'production'].includes(env)) {
     env = '';
   }
-  return env;
+  return env as 'development' | 'production' | '';
 }
 
 export function getDefaultConfig() {

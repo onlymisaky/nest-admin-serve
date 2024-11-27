@@ -3,8 +3,8 @@
     "vscode-icons-team.vscode-icons",
     "redjue.git-commit-plugin",
     "dbaeumer.vscode-eslint",
-    "cweijan.vscode-mysql-client2",
-    "humao.rest-client"
+    "cweijan.vscode-database-client2",
+    "Postman.postman-for-vscode"
   ],
   "unwantedRecommendations": [
     "esbenp.prettier-vscode"

@@ -17,8 +17,8 @@ mysql:
 
 jwt:
   global: true
-  secret: nest_admin
-  expiresIn: 1h
+  secret: 'nest_admin'
+  expiresIn: '1h'
 
 redis:
   host: 'localhost'
