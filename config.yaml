@@ -20,3 +20,7 @@ jwt:
   secret: nest_admin
   expiresIn: 1h
 
+redis:
+  host: 'localhost'
+  port: 6379
+  database: 3

@@ -9,6 +9,7 @@ import { CheckKitModule } from './check-kit/check-kit.module';
 import { CheckKitService } from './check-kit/check-kit.service';
 import { getConfig, getDefaultConfig, getEnv } from './config/configuration';
 import { LoginGuard } from './guards/login.guard';
+import { RedisModule } from './redis';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -17,6 +18,18 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
       ignoreEnvFile: true,
       load: [getDefaultConfig, getConfig],
+    }),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          socket: {
+            host: configService.get('redis.host'),
+            port: configService.get('redis.port'),
+          },
+          database: configService.get('redis.database'),
+        };
+      },
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService, CheckKitService],
@@ -42,8 +55,8 @@ import { UserModule } from './user/user.module';
       },
     }),
     JwtModule.registerAsync({
-      inject: [ConfigService],
       global: true,
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
           global: configService.get('jwt.global'),
