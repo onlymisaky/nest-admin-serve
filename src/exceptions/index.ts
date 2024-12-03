@@ -7,6 +7,5 @@ export function useExceptionFilters(app: INestApplication) {
     new AllExceptionFilter(),
     // new BadRequestFilter(),
     // new NotFoundFilter(),
-    // new RepositoryOperationFilter(),
   );
 }

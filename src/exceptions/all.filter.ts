@@ -13,7 +13,6 @@ export class AllExceptionFilter<T> implements ExceptionFilter {
        * 已验证的异常
        * BadRequestException
        * NotFoundException
-       * RepositoryOperationException
        */
       Res.error(request, response, exception);
       return;

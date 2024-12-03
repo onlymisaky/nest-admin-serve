@@ -1,25 +1,21 @@
-import * as crypto from 'node:crypto';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SafeRepository } from '../decorators/safe-repository.decorator';
+import { SafeService } from '../decorators/safe-service.decorator';
+import { md5 } from '../utils';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User } from './entities/user.entity';
 
-function md5(str: string) {
-  return crypto.createHash('md5').update(str).digest('hex');
-}
-
 @Injectable()
 export class UserService {
-  @InjectRepository(User)
-  @SafeRepository({
-    errorHandler: (error) => {
-      new Logger(UserService.name).error(error);
+  @SafeService({
+    errorHandler(_error, { prop }) {
+      throw new HttpException(`Failed to execute ${String(prop)}`, HttpStatus.UNPROCESSABLE_ENTITY);
     },
   })
-  private userRepository: Repository<User>;
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>;
 
   async register(registerUserDto: RegisterUserDto) {
     const user = new User();
