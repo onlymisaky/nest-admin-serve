@@ -4,8 +4,16 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "plugins": [
-    ]
+    "assets": [
+      {
+        "include": "config/*.yaml"
+      },
+      {
+        "include": "../db/sql.sql",
+        "outDir": "./dist/db"
+      }
+    ],
+    "plugins": []
   },
   "generateOptions": {
     "spec": false

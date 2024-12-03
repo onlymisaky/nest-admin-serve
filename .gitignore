@@ -57,4 +57,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # custom
 /http
-/db
+/db/*
+!/db/init.sql
+nest_admin.db
+package-lock.json
