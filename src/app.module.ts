@@ -9,7 +9,7 @@ import { CheckKitModule } from './check-kit/check-kit.module';
 import { CheckKitService } from './check-kit/check-kit.service';
 import { getConfig, getDefaultConfig, getEnv } from './config/configuration';
 import { LoginGuard } from './guards/login.guard';
-import { RedisModule } from './redis';
+import { PermissionGuard } from './guards/permission.guard';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -19,29 +19,14 @@ import { UserModule } from './user/user.module';
       ignoreEnvFile: true,
       load: [getDefaultConfig, getConfig],
     }),
-    RedisModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return {
-          socket: {
-            host: configService.get('redis.host'),
-            port: configService.get('redis.port'),
-          },
-          database: configService.get('redis.database'),
-        };
-      },
-    }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService, CheckKitService],
-      // @ts-expect-error @ts-ignore
       useFactory: async (configService: ConfigService, checkKitService: CheckKitService) => {
         const mysqlCheck = await checkKitService.checkMysql();
+        const type = mysqlCheck ? 'mysql' : 'sqlite' as 'mysql';
         return {
-          type: mysqlCheck ? 'mysql' : 'sqlite',
-          entities: [
-            // eslint-disable-next-line node/no-path-concat
-            `${__dirname}/**/*.entity{.ts,.js}`,
-          ],
+          type,
+          autoLoadEntities: true,
           host: configService.get('mysql.host'),
           port: configService.get('mysql.port'),
           username: configService.get('mysql.user'),
@@ -76,6 +61,10 @@ import { UserModule } from './user/user.module';
     {
       provide: APP_GUARD,
       useClass: LoginGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
   ],
 })

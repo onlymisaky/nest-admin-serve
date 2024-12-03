@@ -13,8 +13,8 @@ export class UserController {
   @ApiOperation({ tags: ['用户'], summary: '注册用户' })
   @ApiBody({ type: RegisterUserDto })
   @ApiResponse({ status: HttpStatus.OK, description: '注册成功' })
-  @Post('register')
   @PublicRoute()
+  @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {
     const user = await this.userService.register(registerUserDto);
     delete user.password;
@@ -24,19 +24,29 @@ export class UserController {
   @ApiOperation({ tags: ['用户'], summary: '登录' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({ status: HttpStatus.OK, description: '登录成功' })
-  @Post('login')
   @PublicRoute()
+  @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
     const user = await this.userService.login(loginUserDto);
-    const token = await this.jwtService.signAsync({
+    // TODO Cache
+    const payload = {
       id: user.id,
       username: user.username,
-    }).catch((error) => {
+    };
+    // 只把 jwt 当含有少量用户信息的 token 使用
+    // @link https://juejin.cn/post/7391699424843710515
+    const token = await this.jwtService.signAsync(payload).catch((error) => {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     return {
       token,
     };
+  }
+
+  @PublicRoute()
+  @Post('init')
+  async initData() {
+    await this.userService.initData();
   }
 }

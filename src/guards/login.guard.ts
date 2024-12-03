@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -7,7 +7,11 @@ import { PUBLIC_ROUTE } from '../constants';
 
 @Injectable()
 export class LoginGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService, private readonly reflector: Reflector) { }
+  @Inject(Reflector)
+  private readonly reflector: Reflector;
+
+  @Inject(JwtService)
+  private readonly jwtService: JwtService;
 
   canActivate(
     context: ExecutionContext,
@@ -20,21 +24,27 @@ export class LoginGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const authorization = request.header('Authorization');
     if (!authorization) {
-      throw new UnauthorizedException('no authorization');
+      throw new UnauthorizedException('Authorization不存在');
     }
 
-    const token = authorization.split(' ')[1];
+    if (!authorization.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Authorization格式错误');
+    }
+
+    const token = authorization.slice(7);
     if (!token) {
-      throw new UnauthorizedException('no token');
+      throw new UnauthorizedException('Token不存在');
     }
 
     return this.jwtService.verifyAsync(token)
       .then((value) => {
-        (request as any).user = value;
+        // 将解析出的用户信息挂载到请求对象上
+        // PermissionGuard 会用到
+        request.user = value;
         return true;
       })
       .catch(() => {
-        throw new UnauthorizedException('invalid token');
+        throw new UnauthorizedException('Token过期，请重新登录');
       });
   }
 }
