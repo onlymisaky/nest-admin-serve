@@ -1,7 +1,7 @@
+import { PublicRoute } from '@core/decorators/public-route.decorator';
 import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { PublicRoute } from '../decorators/public-route.decorator';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UserService } from './user.service';

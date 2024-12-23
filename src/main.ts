@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useExceptionFilters } from 'src/core/exceptions';
+import { useInterceptors } from 'src/core/interceptors';
+import { usePipes } from 'src/core/pipes';
 import { AppModule } from './app.module';
-import { useExceptionFilters } from './exceptions';
-import { useInterceptors } from './interceptors';
-import { usePipes } from './pipes';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

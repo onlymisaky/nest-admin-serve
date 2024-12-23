@@ -4,7 +4,7 @@
     "redjue.git-commit-plugin",
     "dbaeumer.vscode-eslint",
     "cweijan.vscode-database-client2",
-    "Postman.postman-for-vscode"
+    "client.restclient"
   ],
   "unwantedRecommendations": [
     "esbenp.prettier-vscode"

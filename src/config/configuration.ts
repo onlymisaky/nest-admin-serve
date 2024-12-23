@@ -12,7 +12,7 @@ export function getEnv(): 'development' | 'production' | '' {
 }
 
 export function getDefaultConfig() {
-  const configPath = path.resolve(__dirname, 'config.yaml');
+  const configPath = path.resolve(process.cwd(), 'src/config', 'config.yaml');
   if (fs.existsSync(configPath)) {
     const data = fs.readFileSync(configPath, 'utf8');
     const config = yaml.load(data);
@@ -27,7 +27,7 @@ export function getConfig() {
     return getDefaultConfig();
   }
   const envName = `config.${env}.yaml`;
-  const envPath = path.resolve(__dirname, envName);
+  const envPath = path.resolve(process.cwd(), 'src/config', envName);
   if (fs.existsSync(envPath)) {
     const data = fs.readFileSync(envPath, 'utf8');
     const config = yaml.load(data);

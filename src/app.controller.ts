@@ -1,6 +1,6 @@
+import { PermissionRoute } from '@core/decorators/permission-route.decorator';
 import { Controller, Get, Post, Put } from '@nestjs/common';
 import { AppService } from './app.service';
-import { PermissionRoute } from './decorators/permission-route.decorator';
 
 @Controller()
 export class AppController {

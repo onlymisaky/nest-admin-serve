@@ -5,8 +5,10 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { PUBLIC_ROUTE } from '../constants';
 
+// 鉴权（Authentication）= 身份认证 = 你是谁 401
+
 @Injectable()
-export class LoginGuard implements CanActivate {
+export class AuthGuard implements CanActivate {
   @Inject(Reflector)
   private readonly reflector: Reflector;
 

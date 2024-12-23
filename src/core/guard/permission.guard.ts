@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { UserService } from 'src/user/user.service';
-import { PERMISSION_ROUTE, PUBLIC_ROUTE } from '../constants';
-import { AndPermission, OrAndPermission, Permission } from '../decorators/permission-route.decorator';
+import { AndPermission, OrAndPermission, Permission } from 'src/core/decorators/permission-route.decorator';
+import { AUTHORIZATION_SERVICE, PERMISSION_ROUTE, PUBLIC_ROUTE } from '../constants';
+import { IAuthorizationService } from '../types/authorization-service';
 
 function flattenPermission(routePermission: Permission): OrAndPermission {
   if (typeof routePermission === 'string') {
@@ -67,8 +67,8 @@ export class PermissionGuard implements CanActivate {
   @Inject(Reflector)
   private readonly reflector: Reflector;
 
-  @Inject(UserService)
-  private readonly userService: UserService;
+  @Inject(AUTHORIZATION_SERVICE)
+  private readonly authService: IAuthorizationService;
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // TODO:
@@ -84,13 +84,11 @@ export class PermissionGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const user = request.user;
 
-    const userPermissions = await this.userService.getPermissions(user);
-    if (userPermissions.length === 0) {
+    const permissionNames = await this.authService.getPermissions(request);
+    if (permissionNames.length === 0) {
       throw new UnauthorizedException('权限不足');
     }
-    const permissionNames = userPermissions.map((p) => p.name);
 
     if (checkPermission(routePermission, permissionNames)) {
       return true;

@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { Res } from '@shared/utils/response.utils';
 import { Request, Response } from 'express';
 import { map, Observable } from 'rxjs';
-import { Res } from '../utils/response.utils';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {

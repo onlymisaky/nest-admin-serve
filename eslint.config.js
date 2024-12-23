@@ -4,6 +4,13 @@ const { antfu } = require('@antfu/eslint-config');
 /** @type {import('eslint').Linter.Config[]} */
 module.exports = antfu({
   typescript: true,
+  settings: {
+    // 'import/resolver': {
+    //   typescript: {
+    //     project: './tsconfig.json',
+    //   },
+    // },
+  },
   rules: {
     'style/arrow-parens': 'off',
     'style/semi': ['error', 'always'],

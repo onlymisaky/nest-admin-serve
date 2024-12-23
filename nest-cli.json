@@ -13,7 +13,8 @@
         "outDir": "./dist/db"
       }
     ],
-    "plugins": []
+    "plugins": [],
+    "tsConfigPath": "tsconfig.json"
   },
   "generateOptions": {
     "spec": false
