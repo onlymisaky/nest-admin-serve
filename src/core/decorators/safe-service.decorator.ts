@@ -1,3 +1,26 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+function handleError<S extends Record<string, any>, Cls>(
+  error: any,
+  options: SafeServiceOptions<S, Cls>,
+  classInstance: Cls,
+  service: S,
+  prop: keyof S,
+  method: S[keyof S],
+  args: Parameters<S[keyof S]>,
+) {
+  if (typeof options.errorHandler === 'function') {
+    return options.errorHandler(error, {
+      ins: classInstance,
+      service,
+      prop,
+      method,
+      args,
+    });
+  }
+  throw new HttpException('An error occurred while executing the method', HttpStatus.INTERNAL_SERVER_ERROR);
+}
+
 export interface SafeServiceOptions<S extends Record<string, any>, Cls> {
   errorHandler?: (
     error: any,
@@ -35,23 +58,18 @@ export function SafeService<S extends Record<string, any>, Cls>(options: SafeSer
               return method;
             }
 
-            return async (...args: Parameters<S[keyof S]>) => {
+            return (...args: Parameters<S[keyof S]>) => {
               try {
-                return await method.apply(target, args);
-              }
-              catch (error) {
-                if (typeof options.errorHandler === 'function') {
-                  return options.errorHandler(error, {
-                    ins: classInstance,
-                    service,
-                    prop,
-                    method,
-                    args,
+                const result = method.apply(target, args);
+                if (result instanceof Promise) {
+                  return result.catch((error) => {
+                    handleError(error, options, classInstance, service, prop, method, args);
                   });
                 }
-                else {
-                  return Promise.reject(error);
-                }
+                return result;
+              }
+              catch (error) {
+                handleError(error, options, classInstance, service, prop, method, args);
               }
             };
           },
