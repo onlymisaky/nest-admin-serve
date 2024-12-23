@@ -39,6 +39,7 @@ export class CoreModule {
 
     const moduleMetadata: DynamicModule = {
       module: CoreModule,
+      global: true,
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
@@ -81,6 +82,7 @@ export class CoreModule {
         CheckKitModule,
       ],
       providers,
+      exports: [],
     };
     return moduleMetadata;
   }
