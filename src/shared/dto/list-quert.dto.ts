@@ -16,11 +16,9 @@ export class PaginationDto {
 }
 
 export class SortDto {
-  @IsOptional()
   @IsString({ message: 'sortBy 必须是字符串' })
   sortBy: string;
 
-  @IsOptional()
   @IsEnum(['ASC', 'DESC'], { message: 'sortOrder 必须是 ASC 或 DESC' })
   sortOrder: 'ASC' | 'DESC';
 }
@@ -35,5 +33,6 @@ export abstract class ListQueryDto {
   @Type(() => SortDto)
   sort?: SortDto;
 
-  abstract params?: Record<string, any>;
+  @IsOptional()
+  params?: Record<string, any>;
 }
