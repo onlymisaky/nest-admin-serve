@@ -1,20 +1,11 @@
 DROP DATABASE IF EXISTS nest_admin;
 
--- 建库
 create DATABASE IF NOT EXISTS nest_admin DEFAULT CHARACTER SET = 'utf8mb4';
 
--- 删除表
-DROP TABLE IF EXISTS `nest_admin`.`role_permission_relation`;
-
-DROP TABLE IF EXISTS `nest_admin`.`user_role_relation`;
+USE nest_admin;
 
 DROP TABLE IF EXISTS `nest_admin`.`permission`;
 
-DROP TABLE IF EXISTS `nest_admin`.`role`;
-
-DROP TABLE IF EXISTS `nest_admin`.`user`;
-
--- 创建表
 CREATE TABLE `nest_admin`.`permission` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `name` varchar(50) NOT NULL COMMENT '权限名',
@@ -26,6 +17,8 @@ CREATE TABLE `nest_admin`.`permission` (
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+DROP TABLE IF EXISTS `nest_admin`.`role`;
+
 CREATE TABLE `nest_admin`.`role` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `name` varchar(50) NOT NULL COMMENT '角色名',
@@ -36,6 +29,8 @@ CREATE TABLE `nest_admin`.`role` (
     `update_time` datetime(6) NOT NULL COMMENT '更新时间' DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `nest_admin`.`user`;
 
 CREATE TABLE `nest_admin`.`user` (
     `id` varchar(36) NOT NULL COMMENT 'ID',
@@ -52,6 +47,8 @@ CREATE TABLE `nest_admin`.`user` (
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+DROP TABLE IF EXISTS `nest_admin`.`role_permission_relation`;
+
 CREATE TABLE IF NOT EXISTS `nest_admin`.`role_permission_relation` (
     `role_id` int NOT NULL,
     `permission_id` int NOT NULL,
@@ -59,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `nest_admin`.`role_permission_relation` (
     INDEX `IDX_b4eb35fc9e33b81cf151e47934` (`permission_id`),
     PRIMARY KEY (`role_id`, `permission_id`)
 ) ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `nest_admin`.`user_role_relation`;
 
 CREATE TABLE IF NOT EXISTS `nest_admin`.`user_role_relation` (
     `user_id` varchar(36) NOT NULL,
@@ -82,11 +81,14 @@ ADD CONSTRAINT `FK_04086225838f2e0f2fa11f00484` FOREIGN KEY (`role_id`) REFERENC
 
 INSERT INTO
     `nest_admin`.`permission` (`name`, `description`)
-VALUES ('user:*', '用户模块'),
+VALUES ('*', '所有模块'),
+    ('user:*', '用户模块'),
+    ('user:view', '查看用户'),
     ('user:create', '创建用户'),
     ('user:update', '更新用户'),
     ('user:delete', '删除用户'),
     ('role:*', '角色模块'),
+    ('role:view', '查看角色'),
     ('role:create', '创建角色'),
     ('role:update', '更新角色'),
     ('role:delete', '删除角色');
@@ -97,36 +99,74 @@ VALUES ('admin', '管理员'),
     ('user', '用户');
 
 INSERT INTO
-    `nest_admin`.`role_permission_relation` (`role_id`, `permission_id`)
-VALUES (1, 1),
-    (1, 2),
-    (1, 3),
-    (1, 4),
-    (1, 5),
-    (1, 6),
-    (1, 7),
-    (1, 8);
-
-INSERT INTO
     `nest_admin`.`user` (
         `id`,
         `username`,
         `password`,
-        `email`
+        `nick_name`,
+        `mobile`,
+        `email`,
+        `avatar`
     )
 VALUES (
         '3c34525c-470c-4164-b720-3ed4b6720589',
         'admin',
         'e10adc3949ba59abbe56e057f20f883e',
-        'admin@email.com'
+        'admin',
+        '13800138000',
+        'admin@gmail.com',
+        'https://avatars.githubusercontent.com/u/24823322'
     ),
     (
         '5b43aa54-fb62-442f-8566-03f0ff162689',
         'user',
         'e10adc3949ba59abbe56e057f20f883e',
-        'user@email.com'
+        'user',
+        '13800138001',
+        'user@email.com',
+        'https://avatars.githubusercontent.com/u/5429968'
     );
 
 INSERT INTO
+    `nest_admin`.`role_permission_relation` (`role_id`, `permission_id`)
+SELECT r.id, p.id
+FROM `nest_admin`.`role` AS r
+    JOIN `nest_admin`.`permission` AS p ON r.is_active = 1
+    AND r.is_deleted = 0
+    AND p.is_active = 1
+    AND p.is_deleted = 0
+    AND r.name = 'admin';
+
+INSERT INTO
+    `nest_admin`.`role_permission_relation` (`role_id`, `permission_id`)
+SELECT r.id, p.id
+FROM
+    `nest_admin`.`role` AS r
+    JOIN `nest_admin`.`permission` AS p ON r.is_active = 1
+    AND r.is_deleted = 0
+    AND p.is_active = 1
+    AND p.is_deleted = 0
+    AND r.name = 'user'
+    AND p.name LIKE 'user:%';
+
+INSERT INTO
     `nest_admin`.`user_role_relation` (`user_id`, `role_id`)
-VALUES ('3c34525c-470c-4164-b720-3ed4b6720589', 1);
+SELECT u.id, r.id
+FROM `nest_admin`.`user` AS u
+    JOIN `nest_admin`.`role` AS r ON u.is_active = 1
+    AND u.is_deleted = 0
+    AND r.is_active = 1
+    AND r.is_deleted = 0
+    AND u.username = 'admin'
+
+INSERT INTO
+    `nest_admin`.`user_role_relation` (`user_id`, `role_id`)
+SELECT u.id, r.id
+FROM `nest_admin`.`user` AS u
+    JOIN `nest_admin`.`role` AS r ON u.is_active = 1
+    AND u.is_deleted = 0
+    AND r.is_active = 1
+    AND r.is_deleted = 0
+WHERE
+    u.username = 'user'
+    AND r.name = 'user';
