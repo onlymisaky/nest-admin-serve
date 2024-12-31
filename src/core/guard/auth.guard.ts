@@ -18,7 +18,10 @@ export class AuthGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const isPublic = this.reflector.get<boolean>(PUBLIC_ROUTE, context.getHandler());
+    const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_ROUTE, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (isPublic) {
       return true;
     }
