@@ -109,18 +109,29 @@ INSERT INTO
         `avatar`
     )
 VALUES (
-        '3c34525c-470c-4164-b720-3ed4b6720589',
+        UUID(),
         'admin',
-        'e10adc3949ba59abbe56e057f20f883e',
+        MD5('123456'),
         'admin',
         '13800138000',
         'admin@gmail.com',
         'https://avatars.githubusercontent.com/u/24823322'
-    ),
-    (
-        '5b43aa54-fb62-442f-8566-03f0ff162689',
+    );
+
+INSERT INTO
+    `nest_admin`.`user` (
+        `id`,
+        `username`,
+        `password`,
+        `nick_name`,
+        `mobile`,
+        `email`,
+        `avatar`
+    )
+VALUES (
+        UUID(),
         'user',
-        'e10adc3949ba59abbe56e057f20f883e',
+        MD5('123456'),
         'user',
         '13800138001',
         'user@email.com',

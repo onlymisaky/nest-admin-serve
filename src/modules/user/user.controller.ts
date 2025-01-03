@@ -43,10 +43,4 @@ export class UserController {
       token,
     };
   }
-
-  @PublicRoute()
-  @Post('init')
-  async initData() {
-    await this.userService.initData();
-  }
 }
