@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { AndPermission, OrAndPermission, Permission } from 'src/core/decorators/permission-route.decorator';
@@ -87,13 +87,13 @@ export class PermissionGuard implements CanActivate {
 
     const permissionNames = await this.authService.getPermissions(request);
     if (permissionNames.length === 0) {
-      throw new UnauthorizedException('权限不足');
+      throw new ForbiddenException('无任何权限');
     }
 
     if (checkPermission(routePermission, permissionNames)) {
       return true;
     }
 
-    throw new UnauthorizedException('权限不足');
+    throw new ForbiddenException('权限不足');
   }
 }

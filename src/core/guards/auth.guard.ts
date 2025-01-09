@@ -5,8 +5,6 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { PUBLIC_ROUTE } from '../constants';
 
-// 鉴权（Authentication）= 身份认证 = 你是谁 401
-
 @Injectable()
 export class AuthGuard implements CanActivate {
   @Inject(Reflector)
@@ -29,11 +27,11 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const authorization = request.header('Authorization');
     if (!authorization) {
-      throw new UnauthorizedException('Authorization不存在');
+      throw new UnauthorizedException('未登录');
     }
 
     if (!authorization.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Authorization格式错误');
+      throw new UnauthorizedException('认证格式错误');
     }
 
     const token = authorization.slice(7);
@@ -49,7 +47,7 @@ export class AuthGuard implements CanActivate {
         return true;
       })
       .catch(() => {
-        throw new UnauthorizedException('Token过期，请重新登录');
+        throw new UnauthorizedException('Token已过期');
       });
   }
 }
