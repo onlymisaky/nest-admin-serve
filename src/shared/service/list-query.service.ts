@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { ListQueryDto } from '../dto/list-quert.dto';
+import { ListQueryDto } from '../dto/list-query.dto';
 
 interface QueryConfig {
   [key: string]: {
