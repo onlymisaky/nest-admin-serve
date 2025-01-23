@@ -7,11 +7,11 @@ USE nest_admin;
 DROP TABLE IF EXISTS `nest_admin`.`permission`;
 
 CREATE TABLE `nest_admin`.`permission` (
-    `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `id` int NOT NULL AUTO_INCREMENT,
     `name` varchar(50) NOT NULL COMMENT '权限名',
     `description` varchar(255) NULL COMMENT '权限描述',
     `is_active` tinyint NOT NULL COMMENT '是否激活' DEFAULT '1',
-    `is_deleted` tinyint NOT NULL COMMENT '是否删除' DEFAULT '0',
+    `is_deleted` tinyint NOT NULL COMMENT '是否软删除(0:否,1:是)' DEFAULT '0',
     `create_time` datetime(6) NOT NULL COMMENT '创建时间' DEFAULT CURRENT_TIMESTAMP(6),
     `update_time` datetime(6) NOT NULL COMMENT '更新时间' DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (`id`)
@@ -20,11 +20,11 @@ CREATE TABLE `nest_admin`.`permission` (
 DROP TABLE IF EXISTS `nest_admin`.`role`;
 
 CREATE TABLE `nest_admin`.`role` (
-    `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `id` int NOT NULL AUTO_INCREMENT,
     `name` varchar(50) NOT NULL COMMENT '角色名',
     `description` varchar(255) NOT NULL COMMENT '角色描述',
     `is_active` tinyint NOT NULL COMMENT '是否激活' DEFAULT '1',
-    `is_deleted` tinyint NOT NULL COMMENT '是否删除' DEFAULT '0',
+    `is_deleted` tinyint NOT NULL COMMENT '是否软删除(0:否,1:是)' DEFAULT '0',
     `create_time` datetime(6) NOT NULL COMMENT '创建时间' DEFAULT CURRENT_TIMESTAMP(6),
     `update_time` datetime(6) NOT NULL COMMENT '更新时间' DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (`id`)
@@ -33,7 +33,7 @@ CREATE TABLE `nest_admin`.`role` (
 DROP TABLE IF EXISTS `nest_admin`.`user`;
 
 CREATE TABLE `nest_admin`.`user` (
-    `id` varchar(36) NOT NULL COMMENT 'ID',
+    `id` varchar(36) NOT NULL,
     `username` varchar(50) NOT NULL COMMENT '用户名',
     `password` varchar(50) NOT NULL COMMENT '密码' DEFAULT 'e10adc3949ba59abbe56e057f20f883e',
     `nick_name` varchar(50) NULL COMMENT '昵称',
@@ -41,7 +41,7 @@ CREATE TABLE `nest_admin`.`user` (
     `email` varchar(50) NOT NULL COMMENT '邮箱',
     `avatar` varchar(255) NULL COMMENT '头像',
     `is_active` tinyint NOT NULL COMMENT '是否激活' DEFAULT '1',
-    `is_deleted` tinyint NOT NULL COMMENT '是否删除' DEFAULT '0',
+    `is_deleted` tinyint NOT NULL COMMENT '是否软删除(0:否,1:是)' DEFAULT '0',
     `create_time` datetime(6) NOT NULL COMMENT '创建时间' DEFAULT CURRENT_TIMESTAMP(6),
     `update_time` datetime(6) NOT NULL COMMENT '更新时间' DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (`id`)
