@@ -25,17 +25,19 @@ export class User extends BaseEntityWithUUID {
   @Column({ name: 'is_active', type: 'tinyint', default: 1, comment: '是否激活' })
   isActive: boolean;
 
+  @ManyToMany(() => Role)
   @JoinTable({
-    name: 'user_role_relation',
+    name: 'user_role',
     joinColumn: {
       name: 'user_id',
       referencedColumnName: 'id',
+      foreignKeyConstraintName: 'FK_user_role_user_id',
     },
     inverseJoinColumn: {
       name: 'role_id',
       referencedColumnName: 'id',
+      foreignKeyConstraintName: 'FK_user_role_role_id',
     },
   })
-  @ManyToMany(() => Role)
   roles: Role[];
 }

@@ -13,17 +13,19 @@ export class Role extends BaseEntityWithId {
   @Column({ name: 'is_active', type: 'tinyint', default: 1, comment: '是否激活' })
   isActive: boolean;
 
+  @ManyToMany(() => Permission)
   @JoinTable({
-    name: 'role_permission_relation',
+    name: 'role_permission',
     joinColumn: {
       name: 'role_id',
       referencedColumnName: 'id',
+      foreignKeyConstraintName: 'FK_role_permission_role_id',
     },
     inverseJoinColumn: {
       name: 'permission_id',
       referencedColumnName: 'id',
+      foreignKeyConstraintName: 'FK_role_permission_permission_id',
     },
   })
-  @ManyToMany(() => Permission)
   permissions: Permission[];
 }
