@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { ListQueryDto } from '../dto/list-query.dto';
 
-interface QueryConfig {
-  [key: string]: {
+export type QueryConfig<Dto = any> = {
+  [P in keyof Dto]?: {
     dbField?: string
-    queryType?: 'exact' | 'like' | 'in' | 'between'
+    queryType?: 'exact' | 'like' | 'in' | 'between' | 'gt' | 'gte' | 'lt' | 'lte'
   }
-}
+};
 
 interface Builder<Entity> { builder: SelectQueryBuilder<Entity> }
 interface Alias { alias: string }
-type QueryBuilderOptions<Entity> = Partial<Builder<Entity> | Alias> & { queryConfig?: QueryConfig };
+type QueryBuilderOptions<Entity, Dto = any> = Partial<Builder<Entity> | Alias> & { queryConfig?: QueryConfig<Dto> };
 
 @Injectable()
 export class ListQueryService {
@@ -24,24 +24,46 @@ export class ListQueryService {
     const alias = queryBuilder.alias;
 
     Object.keys(params).forEach(paramKey => {
-      const value = params[paramKey];
-
-      if (value === undefined || value === '' || value === null)
-        return;
-
-      let values: Array<string | number | any> = [];
-      if (Array.isArray(value)) {
-        values = value;
-      }
-      else if (typeof value === 'string') {
-        values = value.split(',');
-      }
-      else {
-        values = [value] as any[];
-      }
-
       const config = queryConfig[paramKey] || { dbField: paramKey, queryType: 'like' };
       const { dbField = paramKey, queryType = 'like' } = config;
+
+      const val = params[paramKey];
+
+      if (val === undefined || val === '' || val === null)
+        return;
+
+      let value;
+
+      if (['in', 'between'].includes(queryType)) {
+        if (Array.isArray(val)) {
+          value = val;
+        }
+        // sql 中 IN 和 BETWEEN 都是类型敏感的
+        // 所以如果不是 string 类型，还是老老实实的传输组吧
+        else if (typeof value === 'string') {
+          value = val.split(',');
+        }
+        else {
+          value = [val, val] as any[];
+        }
+      }
+      else if (['gt', 'gte', 'lt', 'lte'].includes(queryType)) {
+        // 可能是由 between 降级到这一层的
+        // 比如传入了 [1, 's'], [1], ['s', 1], ['2024-01-01', 'sasd'], ['2024-01-01'], ['asdasd', '2024-01-02']
+        // 总之就是其中一个范围格式正确，另一个范围格式不正确或丢失
+        // 这种情况在 controller 层，通过 range-dto 处理成 [合法, null] 或 [null, 合法]
+        // 在 service 层，调用 getPagedList 前判判断是否由 between 降级为 'gt', 'gte', 'lt', 'lte'
+        // 所以此处判断 val 是否为数组，如果是，将第一个不是 null 取出 参与 sql 查找
+        if (Array.isArray(val)) {
+          value = val.find((item) => item !== null);
+        }
+        else {
+          value = val;
+        }
+      }
+      else {
+        value = val;
+      }
 
       switch (queryType) {
         case 'like':
@@ -51,14 +73,14 @@ export class ListQueryService {
           break;
         case 'in':
           queryBuilder.andWhere(`${alias}.${dbField} IN (:...${paramKey})`, {
-            [paramKey]: values,
+            [paramKey]: value,
           });
           break;
         case 'between':
-          if (values.length === 2) {
+          if (value.length === 2) {
             queryBuilder.andWhere(`${alias}.${dbField} BETWEEN :${paramKey}Start AND :${paramKey}End`, {
-              [`${paramKey}Start`]: values[0],
-              [`${paramKey}End`]: values[1],
+              [`${paramKey}Start`]: value[0],
+              [`${paramKey}End`]: value[1],
             });
           }
           break;
@@ -66,6 +88,27 @@ export class ListQueryService {
           queryBuilder.andWhere(`${alias}.${dbField} = :${paramKey}`, {
             [paramKey]: value,
           });
+          break;
+        case 'gt':
+          queryBuilder.andWhere(`${alias}.${dbField} > :${paramKey}`, {
+            [paramKey]: value,
+          });
+          break;
+        case 'gte':
+          queryBuilder.andWhere(`${alias}.${dbField} >= :${paramKey}`, {
+            [paramKey]: value,
+          });
+          break;
+        case 'lt':
+          queryBuilder.andWhere(`${alias}.${dbField} < :${paramKey}`, {
+            [paramKey]: value,
+          });
+          break;
+        case 'lte':
+          queryBuilder.andWhere(`${alias}.${dbField} <= :${paramKey}`, {
+            [paramKey]: value,
+          });
+          break;
       }
     });
 
@@ -76,7 +119,7 @@ export class ListQueryService {
     }
   }
 
-  createListQueryBuilder<Entity>(
+  protected createListQueryBuilder<Entity>(
     repository: Repository<Entity>,
     queryDto: ListQueryDto,
     queryBuilderOptions?: QueryBuilderOptions<Entity>,
@@ -111,10 +154,10 @@ export class ListQueryService {
     return builder;
   }
 
-  async getPagedList<Entity>(
+  async getPagedList<Dto extends ListQueryDto, Entity = any>(
     repository: Repository<Entity>,
-    queryDto: ListQueryDto,
-    queryOptions?: QueryBuilderOptions<Entity>,
+    queryDto: Dto,
+    queryOptions?: QueryBuilderOptions<Entity, Dto['params']>,
   ) {
     const { pagination = { page: 1, pageSize: 10 } } = queryDto;
     const { page = 1, pageSize = 10 } = pagination;

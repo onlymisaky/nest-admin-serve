@@ -34,5 +34,5 @@ export abstract class ListQueryDto {
   sort?: SortDto;
 
   @IsOptional()
-  params?: Record<string, any>;
+  params?: any;
 }
