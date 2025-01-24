@@ -12,8 +12,8 @@ export function handleNumberRangeInQueryParams<Dto extends ListQueryDto>(queryDt
   }
 
   let [startNum, endNum] = queryDto.params[rangeName];
-  startNum = Number(startNum);
-  endNum = Number(endNum);
+  startNum = startNum === null ? Number.NaN : Number(startNum);
+  endNum = endNum === null ? Number.NaN : Number(endNum);
 
   const isInvalidStartNum = Number.isNaN(startNum);
   const isInvalidEndNum = Number.isNaN(endNum);
