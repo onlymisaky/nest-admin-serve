@@ -12,7 +12,7 @@ const msgMap: Record<TimeDiffType, string> = {
 };
 
 function getSeconds(time: string) {
-  const [hours = 0, minutes = 0, seconds = 0] = time.split(':').map(Number);
+  const [hours = 0, minutes = 0, seconds = 0] = `${time}`.split(':').map(Number);
   return hours * 3600 + minutes * 60 + seconds;
 }
 
