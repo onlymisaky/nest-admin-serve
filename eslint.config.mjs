@@ -1,8 +1,8 @@
-const { antfu } = require('@antfu/eslint-config');
+import antfu from '@antfu/eslint-config';
 
 /** @link https://github.com/antfu/eslint-config */
 /** @type {import('eslint').Linter.Config[]} */
-module.exports = antfu({
+export default antfu({
   typescript: true,
   settings: {
     // 'import/resolver': {
