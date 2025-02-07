@@ -17,7 +17,7 @@ export class UserController {
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {
     const user = await this.userService.register(registerUserDto);
-    delete user.password;
+    Reflect.deleteProperty(user, 'password');
     return user;
   }
 

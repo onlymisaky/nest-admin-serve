@@ -54,10 +54,10 @@ export class RedisModule implements OnModuleDestroy {
     const { connectorPackage, isGlobal, redisOptions, ...factoryOptions } = options;
 
     const moduleMetadata = createRedisModule(isGlobal);
-    const provider = findRedisClientProvider(moduleMetadata.providers);
+    const provider = findRedisClientProvider(moduleMetadata.providers as Provider[]);
 
     if (provider) {
-      provider.useFactory = () => createClientFactory(connectorPackage, factoryOptions, redisOptions);
+      provider.useFactory = () => createClientFactory(connectorPackage as ConnectorPackage, factoryOptions, redisOptions);
     }
 
     return moduleMetadata;
@@ -67,7 +67,7 @@ export class RedisModule implements OnModuleDestroy {
     const { isGlobal, imports, inject, useFactory, connectorPackage, ...factoryOptions } = options;
     const moduleMetadata = createRedisModule(isGlobal);
     moduleMetadata.imports = Array.isArray(imports) ? imports : [];
-    const provider = findRedisClientProvider(moduleMetadata.providers);
+    const provider = findRedisClientProvider(moduleMetadata.providers as Provider[]);
 
     if (provider) {
       if (Array.isArray(inject)) {
@@ -76,10 +76,10 @@ export class RedisModule implements OnModuleDestroy {
       provider.useFactory = async (...args) => {
         if (typeof useFactory === 'function') {
           const redisOptions = await useFactory(...args);
-          return createClientFactory(connectorPackage, factoryOptions, redisOptions);
+          return createClientFactory(connectorPackage as ConnectorPackage, factoryOptions, redisOptions);
         }
         else if (typeof useFactory === 'object') {
-          return createClientFactory(connectorPackage, factoryOptions, useFactory);
+          return createClientFactory(connectorPackage as ConnectorPackage, factoryOptions, useFactory);
         }
         throw new Error('Invalid RedisModule useFactory');
       };

@@ -16,7 +16,7 @@ export class RedisService<T extends 'ioredis' | 'redis'> {
     if (this.redisClient instanceof Ioredis) {
       return await this.redisClient
         .set(key, value)
-        .then(() => this.redisClient.expire(key, ttl).then(() => 'OK'));
+        .then(() => this.redisClient.expire(key, ttl as number).then(() => 'OK'));
     }
     const options = ttl ? { EX: ttl } : {};
     return await this.redisClient.set(key, value, options);

@@ -4,17 +4,9 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": [
-      {
-        "include": "config/*.yaml"
-      },
-      {
-        "include": "../db/sql.sql",
-        "outDir": "./dist/db"
-      }
-    ],
+    "assets": [],
     "plugins": [],
-    "tsConfigPath": "tsconfig.json"
+    "tsConfigPath": "tsconfig.build.json"
   },
   "generateOptions": {
     "spec": false

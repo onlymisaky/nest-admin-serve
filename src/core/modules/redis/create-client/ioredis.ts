@@ -25,8 +25,8 @@ function reconnect(
   factoryOptions: FactoryOptions,
   connectCount: number = 0,
 ) {
-  return connect(client).catch((err) => {
-    if (connectCount >= 888888888) {
+  return connect(client)?.catch((err) => {
+    if (connectCount >= (factoryOptions.reconnectCount as number)) {
       if (typeof factoryOptions.onConnectError === 'function') {
         factoryOptions.onConnectError(err);
       }
@@ -35,7 +35,7 @@ function reconnect(
       }
     }
     connectCount++;
-    return wait(factoryOptions.reconnectInterval).then(() => reconnect(client, factoryOptions, connectCount));
+    return wait(factoryOptions.reconnectInterval as number).then(() => reconnect(client, factoryOptions, connectCount));
   });
 }
 

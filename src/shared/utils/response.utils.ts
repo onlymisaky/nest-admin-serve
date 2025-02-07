@@ -32,7 +32,7 @@ export class Res {
     if (!Array.isArray(response.message)) {
       return false;
     }
-    if (!exception.stack.includes('ValidationPipe.exceptionFactory')) {
+    if (!exception.stack?.includes('ValidationPipe.exceptionFactory')) {
       return false;
     }
     return true;

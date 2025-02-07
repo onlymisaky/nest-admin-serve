@@ -9,7 +9,7 @@ function connect(
   connectCount: number = 0,
 ): Promise<RedisClientType> {
   return client.connect().catch((err) => {
-    if (connectCount >= factoryOptions.reconnectCount) {
+    if (connectCount >= (factoryOptions.reconnectCount as number)) {
       if (typeof factoryOptions.onConnectError === 'function') {
         factoryOptions.onConnectError(err);
       }
@@ -18,7 +18,7 @@ function connect(
       }
     }
     connectCount++;
-    return wait(factoryOptions.reconnectInterval).then(() => connect(client, factoryOptions, connectCount));
+    return wait(factoryOptions.reconnectInterval as number).then(() => connect(client, factoryOptions, connectCount));
   });
 }
 

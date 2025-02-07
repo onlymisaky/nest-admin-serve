@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { ListQueryDto } from '../dto/list-query.dto';
 
 export type QueryConfig<Dto = any> = {
@@ -9,9 +9,9 @@ export type QueryConfig<Dto = any> = {
   }
 };
 
-interface Builder<Entity> { builder: SelectQueryBuilder<Entity> }
+interface Builder<Entity extends ObjectLiteral> { builder: SelectQueryBuilder<Entity> }
 interface Alias { alias: string }
-type QueryBuilderOptions<Entity, Dto = any> = Partial<Builder<Entity> | Alias> & { queryConfig?: QueryConfig<Dto> };
+type QueryBuilderOptions<Entity extends ObjectLiteral, Dto = any> = Partial<Builder<Entity> | Alias> & { queryConfig?: QueryConfig<Dto> };
 
 @Injectable()
 export class ListQueryService {
@@ -119,7 +119,7 @@ export class ListQueryService {
     }
   }
 
-  protected createListQueryBuilder<Entity>(
+  protected createListQueryBuilder<Entity extends ObjectLiteral>(
     repository: Repository<Entity>,
     queryDto: ListQueryDto,
     queryBuilderOptions?: QueryBuilderOptions<Entity>,
@@ -154,7 +154,7 @@ export class ListQueryService {
     return builder;
   }
 
-  async getPagedList<Dto extends ListQueryDto, Entity = any>(
+  async getPagedList<Dto extends ListQueryDto, Entity extends ObjectLiteral = any>(
     repository: Repository<Entity>,
     queryDto: Dto,
     queryOptions?: QueryBuilderOptions<Entity, Dto['params']>,
