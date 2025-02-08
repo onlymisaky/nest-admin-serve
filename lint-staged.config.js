@@ -3,5 +3,5 @@
  * @type {import('lint-staged').Config}
  */
 module.exports = {
-  '**/*.{ts}': ['npm run eslint'],
+  '*.{js,ts,json}': 'eslint',
 };
