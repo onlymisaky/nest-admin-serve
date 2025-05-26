@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { BaseEntityWithId } from './base.emtity';
+import { BaseEntityWithId } from './base.entity';
 
 @Entity({ name: 'permission' })
 export class Permission extends BaseEntityWithId {

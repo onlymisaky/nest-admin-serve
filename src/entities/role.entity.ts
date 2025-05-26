@@ -1,5 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
-import { BaseEntityWithId } from './base.emtity';
+import { BaseEntityWithId } from './base.entity';
 import { Permission } from './permission.entity';
 
 @Entity({ name: 'role' })
