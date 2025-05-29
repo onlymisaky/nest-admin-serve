@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 import { SharedModule } from '@shared/shared.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DomainModule } from './modules/domain/domain.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AppService } from './app.service';
     }),
     SharedModule.forRoot(),
     UserModule,
+    DomainModule,
   ],
   controllers: [AppController],
   providers: [AppService],
