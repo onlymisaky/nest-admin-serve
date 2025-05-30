@@ -41,7 +41,7 @@ export interface IsDecimalOptions {
 export function IsDecimal(options: IsDecimalOptions, validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isDecimal',
+      name: 'IsDecimal',
       target: object.constructor,
       propertyName,
       options: {

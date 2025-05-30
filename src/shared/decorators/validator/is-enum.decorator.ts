@@ -4,7 +4,7 @@ import { registerDecorator, ValidationArguments, ValidationOptions } from 'class
 export function IsEnumType(enumType: Record<string, number>, validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isEnumType',
+      name: 'IsEnumType',
       target: object.constructor,
       propertyName,
       options: validationOptions,

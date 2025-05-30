@@ -36,7 +36,7 @@ function compareTime(time1: string, time2: string, comparisonType: TimeCompariso
 export function TimeComparison(comparisonType: TimeComparisonType, compareWithProperty: string, validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'timeComparison',
+      name: 'TimeComparison',
       target: object.constructor,
       propertyName,
       constraints: [compareWithProperty, comparisonType],

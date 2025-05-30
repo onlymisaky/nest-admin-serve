@@ -3,7 +3,7 @@ import { registerDecorator, ValidationArguments, ValidationOptions } from 'class
 export function IsMobile(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isMobile',
+      name: 'IsMobile',
       target: object.constructor,
       propertyName,
       options: {
