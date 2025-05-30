@@ -5,6 +5,7 @@ import { IsDecimal } from '@shared/decorators/validator/is-decimal.decorator';
 import { getEnumNumbers } from '@shared/utils/enum';
 import { Transform, Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsISO8601, IsJSON, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches, MaxLength, MinLength, ValidateNested } from 'class-validator';
+import { IsNumberRange } from '@/shared/decorators/validator/is-number-range.decorator';
 import { ListQueryDto } from '@/shared/dto/list-query.dto';
 
 export class DomainDto {
@@ -84,7 +85,7 @@ export class DomainDto {
   blob?: Buffer;
 }
 
-export class CreateDomainDto extends OmitType(DomainDto, []) {
+export class CreateDomainDto extends OmitType(DomainDto, ['varbinary', 'blob']) {
 
 }
 
@@ -96,12 +97,40 @@ export class UpdateDomainEnumDto extends PickType(DomainDto, ['enum']) {
 
 }
 
-export class DomainQueryDto extends PartialType(DomainDto) {
+export class QueryDomainDto extends PartialType(PickType(DomainDto, ['char', 'varchar'])) {
+  @Transform((args) => {
+    // 只做转换，不做任何验证
+    if (Array.isArray(args.value)) {
+      // 确保 args.value 至少有两个元素
+      const [start, end, ...rest] = args.value;
+      return [start, end, ...rest].map(item => {
+        if (['', 'null', 'undefined'].includes(`${item}`.trim())) {
+          return null;
+        }
+        const n = Number(item);
+        if (Number.isNaN(Number(item))) {
+          return null;
+        }
+        return n;
+      });
+    }
+    return null;
+  })
+  @IsNumberRange()
+  @IsOptional()
+  decimalRange?: [number?, number?];
 
+  @IsArray()
+  @IsOptional()
+  enum?: DomainStatus[];
+
+  @IsArray()
+  @IsOptional()
+  datetimeRange?: [string?, string?];
 }
 
-export class DomainListQueryDto extends ListQueryDto {
+export class QueryDomainListDto extends ListQueryDto {
   @ValidateNested()
-  @Type(() => DomainQueryDto)
-  params: DomainQueryDto;
+  @Type(() => QueryDomainDto)
+  params: QueryDomainDto;
 }

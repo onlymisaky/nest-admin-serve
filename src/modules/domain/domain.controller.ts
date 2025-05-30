@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { PublicRoute } from '@/core/decorators/public-route.decorator';
 import { DomainStatus } from '@/entities/domain.entity';
 import { DomainService } from './domain.service';
-import { CreateDomainDto, DomainListQueryDto, UpdateDomainDto } from './dto/domain.dto';
+import { CreateDomainDto, QueryDomainListDto, UpdateDomainDto } from './dto/domain.dto';
 
 @PublicRoute()
 @Controller('domain')
@@ -35,7 +35,7 @@ export class DomainController {
   }
 
   @Post('list')
-  async getDomainList(@Body() queryDto: DomainListQueryDto) {
+  async getDomainList(@Body() queryDto: QueryDomainListDto) {
     return this.domainService.getDomainPagedList(queryDto);
   }
 }

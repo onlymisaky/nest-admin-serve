@@ -47,7 +47,7 @@ export class DomainEntity extends BaseEntityWithId {
    */
 
   @Column({
-    type: 'varchar', // sqlite not support char
+    type: 'varchar', // sqlite does not support char, use varchar instead
     length: 6,
     comment: '适用于存储固定长度的字符串，如手机号、身份证号、国家代码、状态码等。长度固定，不足会补空格。存储空间：固定长度',
   })
@@ -221,7 +221,7 @@ export class DomainEntity extends BaseEntityWithId {
   tinyintToAchieveEnum: TinyintEnum;
 
   @Column({
-    type: 'varchar', // sqlite not support enum
+    type: 'varchar', // sqlite does not support enum , use varchar instead
     enum: DomainStatus,
     default: DomainStatus.PENDING,
     nullable: true,
@@ -265,7 +265,7 @@ export class DomainEntity extends BaseEntityWithId {
   datetime: Date;
 
   @Column({
-    type: 'varchar', // sqlite not support timestamp
+    type: 'varchar', // sqlite does not support timestamp, use varchar instead
     length: 15, // 也可以使用 bigint 、 varchar ，考虑到存在精度丢失问题，使用 varchar
     comment: '适用于存储时间戳，自动更新，常用于记录数据的创建和更新时间。存储空间：4字节，受时区影响',
     nullable: true,
@@ -273,7 +273,7 @@ export class DomainEntity extends BaseEntityWithId {
   timestamp: Date;
 
   @Column({
-    type: 'int', // sqlite not support year
+    type: 'int', // sqlite does not support year, use int instead
     nullable: true,
   })
   year: number;

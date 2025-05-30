@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 import { SafeService } from '@/core/decorators/safe-service.decorator';
 import { DomainEntity, DomainStatus } from '@/entities/domain.entity';
 import { ListQueryService } from '@/shared/service/list-query.service';
-import { CreateDomainDto, UpdateDomainDto } from './dto/domain.dto';
+import { createRangeQueryConfig } from '@/shared/utils/range-dto';
+import { CreateDomainDto, QueryDomainListDto, UpdateDomainDto } from './dto/domain.dto';
 
 @Injectable()
 export class DomainService {
@@ -25,13 +26,20 @@ export class DomainService {
     return this.domainRepository.save(domain);
   }
 
-  async getDomainPagedList(query: any) {
+  async getDomainPagedList(queryDto: QueryDomainListDto) {
     const alias = 'domain';
     const queryBuilder = this.domainRepository.createQueryBuilder(alias);
     queryBuilder.andWhere(`${alias}.is_deleted = :isDeleted`, { isDeleted: false });
-    const data = await this.listQueryService.getPagedList(this.domainRepository, query, {
+    const data = await this.listQueryService.getPagedList(this.domainRepository, queryDto, {
       builder: queryBuilder,
-      queryConfig: {},
+      alias,
+      queryConfig: {
+        char: { queryType: 'exact' },
+        varchar: { queryType: 'like' },
+        ...createRangeQueryConfig(queryDto, 'decimalRange', 'decimal'),
+        enum: { queryType: 'in' },
+        ...createRangeQueryConfig(queryDto, 'datetimeRange', 'datetime'),
+      },
     });
     return data;
   }
