@@ -1,9 +1,9 @@
-import { getConfig, getDefaultConfig, getEnv } from '@/config/configuration';
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { getConfig, getDefaultConfig, getEnv } from '@/config/configuration';
 import { AUTHORIZATION_SERVICE } from './constants';
 import { AuthGuard } from './guards/auth.guard';
 import { PermissionGuard } from './guards/permission.guard';
