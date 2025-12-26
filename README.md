@@ -1,17 +1,20 @@
 # nest-admin
 
-## 环境
+## 环境要求
 
-### node
-- https://nodejs.org/dist/
+### 必需环境
 
-### mysql
-- 服务端 https://dev.mysql.com/downloads/mysql/
-- 客户端 https://dev.mysql.com/downloads/workbench/
+#### Node.js
+- 下载地址: https://nodejs.org/dist/
 
-### redis
-- 服务端 https://redis.io/download/
-- 客户端 https://redis.io/insight/
+#### MySQL
+- 服务端: https://dev.mysql.com/downloads/mysql/
+- 客户端: https://dev.mysql.com/downloads/workbench/
 
-### docker
+
+#### Redis
+- 服务端: https://redis.io/download/
+- 客户端: https://redis.io/insight/
+
+### Docker
 - https://www.docker.com/products/docker-desktop/

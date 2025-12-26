@@ -3,12 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getConfig, getDefaultConfig, getEnv } from '@/config/configuration';
+import { getConfig, getDefaultConfig } from '@/config/configuration';
 import { AUTHORIZATION_SERVICE } from './constants';
+import { createTypeOrmOptions } from './database/typeorm.factory';
 import { AuthGuard } from './guards/auth.guard';
 import { PermissionGuard } from './guards/permission.guard';
-import { CheckKitModule } from './modules/check-kit/check-kit.module';
-import { CheckKitService } from './modules/check-kit/check-kit.service';
 import { IAuthorizationService } from './types/authorization-service';
 
 @Module({})
@@ -47,23 +46,9 @@ export class CoreModule {
           load: [getDefaultConfig, getConfig],
         }),
         TypeOrmModule.forRootAsync({
-          inject: [ConfigService, CheckKitService],
-          useFactory: async (configService: ConfigService, checkKitService: CheckKitService) => {
-            const mysqlCheck = await checkKitService.checkMysql();
-            const type = mysqlCheck ? 'mysql' : 'sqlite' as 'mysql';
-            return {
-              type,
-              autoLoadEntities: true,
-              host: configService.get('mysql.host'),
-              port: configService.get('mysql.port'),
-              username: configService.get('mysql.user'),
-              password: configService.get('mysql.password'),
-              database: configService.get('mysql.database') + (mysqlCheck ? '' : '.db'),
-              logging: configService.get('mysql.logging'),
-              poolSize: configService.get('mysql.poolSize'),
-              synchronize: getEnv() === 'production' ? false : configService.get('mysql.synchronize'),
-              connectorPackage: configService.get('mysql.connectorPackage'),
-            };
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => {
+            return await createTypeOrmOptions(configService);
           },
         }),
         JwtModule.registerAsync({
@@ -79,7 +64,6 @@ export class CoreModule {
             };
           },
         }),
-        CheckKitModule,
       ],
       providers,
       exports: [],
