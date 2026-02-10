@@ -2,29 +2,32 @@ import { Injectable } from '@nestjs/common';
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { ListQueryDto } from '../dto/list-query.dto';
 
-export type QueryConfig<Dto = any> = {
-  [P in keyof Dto]?: {
-    dbField?: string
-    queryType?: 'exact' | 'like' | 'in' | 'between' | 'gt' | 'gte' | 'lt' | 'lte'
-  }
+export interface FieldQueryConfig {
+  dbField?: string
+  queryType?: 'exact' | 'like' | 'in' | 'between' | 'gt' | 'gte' | 'lt' | 'lte'
+}
+
+type FieldConfigs<Dto = any> = {
+  [P in keyof Dto]?: FieldQueryConfig
 };
 
-interface Builder<Entity extends ObjectLiteral> { builder: SelectQueryBuilder<Entity> }
-interface Alias { alias: string }
-type QueryBuilderOptions<Entity extends ObjectLiteral, Dto = any> = Partial<Builder<Entity> | Alias> & { queryConfig?: QueryConfig<Dto> };
+interface QueryOptions<Entity extends ObjectLiteral, Dto = any> {
+  queryBuilder?: SelectQueryBuilder<Entity>
+  fieldConfigs?: FieldConfigs<Dto>
+}
 
 @Injectable()
 export class ListQueryService {
   protected handleQueryBuilder(
     queryBuilder: SelectQueryBuilder<any>,
     params: Record<string, any>,
-    queryConfig: QueryConfig = {},
+    fieldConfigs: FieldConfigs = {},
     sort?: { sortBy: string, sortOrder: 'ASC' | 'DESC' },
   ) {
     const alias = queryBuilder.alias;
 
     Object.keys(params).forEach(paramKey => {
-      const config = queryConfig[paramKey] || { dbField: paramKey, queryType: 'like' };
+      const config = fieldConfigs[paramKey] || { dbField: paramKey, queryType: 'like' };
       const { dbField = paramKey, queryType = 'like' } = config;
 
       const val = params[paramKey];
@@ -40,7 +43,7 @@ export class ListQueryService {
         }
         // sql 中 IN 和 BETWEEN 都是类型敏感的
         // 所以如果不是 string 类型，还是老老实实的传输组吧
-        else if (typeof value === 'string') {
+        else if (typeof val === 'string') {
           value = val.split(',');
         }
         else {
@@ -113,7 +116,7 @@ export class ListQueryService {
     });
 
     if (sort?.sortBy) {
-      const sortConfig = queryConfig[sort.sortBy] || {};
+      const sortConfig = fieldConfigs[sort.sortBy] || {};
       const sortField = sortConfig.dbField || sort.sortBy;
       queryBuilder.orderBy(`${alias}.${sortField}`, sort.sortOrder);
     }
@@ -122,42 +125,41 @@ export class ListQueryService {
   protected createListQueryBuilder<Entity extends ObjectLiteral>(
     repository: Repository<Entity>,
     queryDto: ListQueryDto,
-    queryBuilderOptions?: QueryBuilderOptions<Entity>,
+    queryOptions?: QueryOptions<Entity>,
   ): SelectQueryBuilder<Entity> {
-    let alias: string = (queryBuilderOptions as Alias)?.alias || 'entity';
-    alias = `${alias}`;
-    let builder: SelectQueryBuilder<Entity>;
-    let queryConfig: QueryConfig = {};
+    const alias: string = (queryOptions)?.queryBuilder?.alias || 'entity';
+    let queryBuilder: SelectQueryBuilder<Entity>;
+    let fieldConfigs: FieldConfigs = {};
 
     // 校验 + 赋值
     // 可读性和代码简介性平衡
-    if (queryBuilderOptions) {
-      if ((queryBuilderOptions as Builder<Entity>).builder instanceof SelectQueryBuilder) {
-        builder = (queryBuilderOptions as Builder<Entity>).builder;
+    if (queryOptions) {
+      if (queryOptions.queryBuilder instanceof SelectQueryBuilder) {
+        queryBuilder = queryOptions.queryBuilder;
       }
       else {
-        builder = repository.createQueryBuilder(alias);
+        queryBuilder = repository.createQueryBuilder(alias);
       }
 
-      if (typeof queryBuilderOptions.queryConfig === 'object' && queryBuilderOptions.queryConfig !== null) {
-        queryConfig = queryBuilderOptions.queryConfig;
+      if (typeof queryOptions.fieldConfigs === 'object' && queryOptions.fieldConfigs !== null) {
+        fieldConfigs = queryOptions.fieldConfigs;
       }
     }
     else {
-      builder = repository.createQueryBuilder(alias);
+      queryBuilder = repository.createQueryBuilder(alias);
     }
 
     const { params = {}, sort } = queryDto;
 
-    this.handleQueryBuilder(builder, params, queryConfig, sort);
+    this.handleQueryBuilder(queryBuilder, params, fieldConfigs, sort);
 
-    return builder;
+    return queryBuilder;
   }
 
   async getPagedList<Dto extends ListQueryDto, Entity extends ObjectLiteral = any>(
     repository: Repository<Entity>,
     queryDto: Dto,
-    queryOptions?: QueryBuilderOptions<Entity, Dto['params']>,
+    queryOptions?: QueryOptions<Entity, Dto['params']>,
   ) {
     const { pagination = { page: 1, pageSize: 10 } } = queryDto;
     const { page = 1, pageSize = 10 } = pagination;

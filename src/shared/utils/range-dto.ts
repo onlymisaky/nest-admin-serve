@@ -1,5 +1,5 @@
 import { ListQueryDto } from '../dto/list-query.dto';
-import { QueryConfig } from '../service/list-query.service';
+import { FieldQueryConfig } from '../service/list-query.service';
 
 export function handleNumberRangeInQueryParams<Dto extends ListQueryDto>(queryDto: Dto, rangeName: keyof Dto['params']) {
   const range = queryDto?.params?.[rangeName];
@@ -65,25 +65,20 @@ function getQueryType(startValue: number, endValue: number): 'between' | 'gte' |
   return null;
 }
 
-export function createRangeQueryConfig<Dto extends ListQueryDto>(queryDto: Dto, rangeName: keyof Dto['params'], dbField?: string) {
-  const queryConfig: QueryConfig<Dto> = {};
-  const range = queryDto?.params?.[rangeName];
+export function createRangeFieldQueryConfig(range: any, dbField?: string) {
+  const fieldConfig: FieldQueryConfig = {};
 
-  if (!range) {
-    return queryConfig;
+  if (!range || !Array.isArray(range)) {
+    return fieldConfig;
   }
 
-  // 由于在控制器中已经处理过 queryDto 了，所以这里不需要在判断是否为数组
-
-  const [startValue, endValue] = queryDto.params[rangeName];
+  const [startValue, endValue] = range;
   const queryType = getQueryType(startValue, endValue);
 
   if (queryType) {
-    queryConfig[rangeName] = {
-      queryType,
-      dbField: dbField || String(rangeName) || '',
-    };
+    fieldConfig.queryType = queryType;
+    fieldConfig.dbField = dbField || '';
   }
 
-  return queryConfig;
+  return fieldConfig;
 }

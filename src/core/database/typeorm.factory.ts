@@ -9,15 +9,12 @@ import { getEnv } from '@/config/configuration';
 export function createMysqlTypeOrmOptions(configService: ConfigService): TypeOrmModuleOptions {
   return {
     type: 'mysql' as const,
-    autoLoadEntities: true,
     host: configService.get('mysql.host') as string,
     port: configService.get('mysql.port') as number,
     username: configService.get('mysql.user') as string,
     password: configService.get('mysql.password') as string,
     database: configService.get('mysql.database') as string,
-    logging: configService.get('mysql.logging') as boolean,
     poolSize: configService.get('mysql.poolSize') as number,
-    synchronize: getEnv() === 'production' ? false : configService.get('mysql.synchronize') as boolean,
     connectorPackage: configService.get('mysql.connectorPackage') as 'mysql2',
   };
 }
@@ -29,7 +26,6 @@ export function createSqliteTypeOrmOptions(configService: ConfigService): TypeOr
   return {
     type: 'sqlite' as const,
     database: `${(configService.get('mysql.database') || 'database')}.db`,
-    autoLoadEntities: true,
   };
 }
 
@@ -50,7 +46,18 @@ export async function createTypeOrmOptions(configService: ConfigService): Promis
     return false;
   });
 
-  return hasMysql
+  const commonOptions: TypeOrmModuleOptions = {
+    autoLoadEntities: true,
+    logging: configService.get('mysql.logging') as boolean,
+    synchronize: getEnv() === 'production' ? false : configService.get('mysql.synchronize') as boolean,
+  };
+
+  const typeOrmOptions = hasMysql
     ? createMysqlTypeOrmOptions(configService)
     : createSqliteTypeOrmOptions(configService);
+
+  return {
+    ...commonOptions,
+    ...typeOrmOptions,
+  } as TypeOrmModuleOptions;
 }
