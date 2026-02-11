@@ -1,7 +1,7 @@
 /**
- * @link https://github.com/okonet/lint-staged
- * @type {import('lint-staged').Config}
+ * @filename: lint-staged.config.js
+ * @type {import('lint-staged').Configuration}
  */
-module.exports = {
+export default {
   '*.{js,ts,json}': 'eslint',
 };

@@ -1,8 +1,10 @@
+/** @link https://github.com/antfu/eslint-config */
+
 import antfu from '@antfu/eslint-config';
 
-/** @link https://github.com/antfu/eslint-config */
-/** @type {import('eslint').Linter.Config[]} */
-export default antfu({
+console.log('eslint.config.ts');
+
+const eslintConfig = antfu({
   typescript: true,
   settings: {
     // 'import/resolver': {
@@ -24,3 +26,5 @@ export default antfu({
     '**/tsconfig.json',
   ],
 });
+
+export default eslintConfig;

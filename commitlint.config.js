@@ -1,8 +1,10 @@
 /**
- * @link https://commitlint.js.org/
- * @type {import('commitlint').UserConfig}
+ * @link https://commitlint.js.org/#/reference-configuration
+ * @type {import('@commitlint/types').UserConfig}
  */
-module.exports = {
+const commitlintConfig = {
   extends: ['@commitlint/config-angular'],
   ignores: [(commit) => commit.startsWith('init')],
 };
+
+export default commitlintConfig;
