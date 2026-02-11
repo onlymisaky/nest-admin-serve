@@ -9,6 +9,7 @@ import { getConfig } from './config/configuration';
 
 async function bootstrap() {
   try {
+    // 启动时先获取配置，确保配置文件存在
     getConfig();
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);

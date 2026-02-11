@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SafeService } from '@/core/decorators/safe-service.decorator';
@@ -11,7 +11,7 @@ import { CreateDomainDto, QueryDomainListDto, UpdateDomainDto } from './dto/doma
 export class DomainService {
   @SafeService({
     errorHandler(_error, { prop }) {
-      throw new HttpException(`Failed to execute ${String(prop)}`, HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new UnprocessableEntityException(`Failed to execute ${String(prop)}`);
     },
   })
   @InjectRepository(DomainEntity)
@@ -46,7 +46,7 @@ export class DomainService {
   async getDomain(id: number) {
     const domain = await this.domainRepository.findOne({ where: { id, isDeleted: false } });
     if (!domain) {
-      throw new HttpException('domain不存在', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('domain不存在');
     }
     return domain;
   }

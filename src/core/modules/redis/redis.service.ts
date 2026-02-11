@@ -23,7 +23,7 @@ export class RedisService<T extends 'ioredis' | 'redis'> {
   }
 
   async del(key: string) {
-    return await this.redisClient.del(key);
+    return await this.redisClient.del([key]);
   }
 
   getClient() {

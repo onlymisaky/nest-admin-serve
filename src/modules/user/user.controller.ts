@@ -1,5 +1,5 @@
 import { PublicRoute } from '@core/decorators/public-route.decorator';
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -35,9 +35,7 @@ export class UserController {
     };
     // 只把 jwt 当含有少量用户信息的 token 使用
     // @link https://juejin.cn/post/7391699424843710515
-    const token = await this.jwtService.signAsync(payload).catch((error) => {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    const token = await this.jwtService.signAsync(payload);
 
     return {
       token,

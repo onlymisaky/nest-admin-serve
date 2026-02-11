@@ -2,7 +2,7 @@ import { SafeService } from '@core/decorators/safe-service.decorator';
 import { IAuthorizationService } from '@core/types/authorization-service';
 import { Permission } from '@entities/permission.entity';
 import { User } from '@entities/user.entity';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { md5 } from '@shared/utils';
 import { Request } from 'express';
@@ -14,7 +14,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 export class UserService implements IAuthorizationService {
   @SafeService({
     errorHandler(_error, { prop }) {
-      throw new HttpException(`Failed to execute ${String(prop)}`, HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new UnprocessableEntityException(`Failed to execute ${String(prop)}`);
     },
   })
   @InjectEntityManager()
@@ -30,7 +30,7 @@ export class UserService implements IAuthorizationService {
     const existUser = await this.entityManager.findOne(User, { where: { username: user.username } });
 
     if (existUser) {
-      throw new HttpException('用户名已存在', HttpStatus.CONFLICT);
+      throw new ConflictException('用户名已存在');
     }
 
     const newUser = await this.entityManager.save(User, user);
@@ -47,7 +47,7 @@ export class UserService implements IAuthorizationService {
     });
 
     if (!user) {
-      throw new HttpException('用户名或密码错误', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('用户名或密码错误');
     }
 
     return user;

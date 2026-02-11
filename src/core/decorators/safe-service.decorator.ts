@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 
 function handleError<S extends Record<string, any>, Cls>(
   error: any,
@@ -18,7 +18,7 @@ function handleError<S extends Record<string, any>, Cls>(
       args,
     });
   }
-  throw new HttpException('An error occurred while executing the method', HttpStatus.INTERNAL_SERVER_ERROR);
+  throw new InternalServerErrorException(error);
 }
 
 export interface SafeServiceOptions<S extends Record<string, any>, Cls> {
@@ -30,7 +30,7 @@ export interface SafeServiceOptions<S extends Record<string, any>, Cls> {
       prop: keyof S
       method: S[keyof S]
       args: Parameters<S[keyof S]>
-    }
+    },
   ) => any
   methods?: (keyof S)[]
 }
