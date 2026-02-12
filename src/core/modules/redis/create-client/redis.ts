@@ -1,32 +1,29 @@
+import type { RedisClientOptions, RedisClientType } from 'redis';
+import type { ReconnectOptions } from '../types';
 import * as redis from 'redis';
-import { RedisClientOptions, RedisClientType } from 'redis';
-import { FactoryOptions, wait } from './utils';
+import { wait } from './utils';
 
-// 连接客户端
 function connect(
   client: RedisClientType,
-  factoryOptions: FactoryOptions,
+  reconnectOptions: ReconnectOptions,
   connectCount: number = 0,
 ): Promise<RedisClientType> {
   return client.connect().catch((err) => {
-    if (connectCount >= (factoryOptions.reconnectCount as number)) {
-      if (typeof factoryOptions.onConnectError === 'function') {
-        factoryOptions.onConnectError(err);
+    if (connectCount >= (reconnectOptions.reconnectCount as number)) {
+      if (typeof reconnectOptions.onConnectError === 'function') {
+        reconnectOptions.onConnectError(err);
       }
       else {
         throw err;
       }
     }
     connectCount++;
-    return wait(factoryOptions.reconnectInterval as number).then(() => connect(client, factoryOptions, connectCount));
+    return wait(reconnectOptions.reconnectInterval as number).then(() => connect(client, reconnectOptions, connectCount));
   });
 }
 
-/**
- * @description 创建 Redis 客户端
- */
-export async function createRedisClientFactory(
-  factoryOptions: FactoryOptions,
+export async function createRedisClient(
+  reconnectOptions: ReconnectOptions,
   redisOptions: RedisClientOptions,
 ) {
   const client = redis.createClient(redisOptions);
@@ -34,6 +31,6 @@ export async function createRedisClientFactory(
   // 主动捕获 error 会导致 client.connect().catch() 无法捕获到错误
   // client.on('error', (err) => { });
 
-  await connect(client as RedisClientType, factoryOptions, 0);
+  await connect(client as RedisClientType, reconnectOptions, 0);
   return client;
 }

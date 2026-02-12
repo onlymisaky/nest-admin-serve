@@ -1,7 +1,8 @@
-import Ioredis, { RedisOptions as IoredisClientOptions } from 'ioredis';
-import { FactoryOptions, wait } from './utils';
+import type { RedisOptions as IoredisClientOptions } from 'ioredis';
+import type { ReconnectOptions } from '../types';
+import Ioredis from 'ioredis';
+import { wait } from './utils';
 
-// 连接客户端
 function connect(client: Ioredis) {
   if (client.status === 'connect') {
     return Promise.resolve();
@@ -22,33 +23,33 @@ function connect(client: Ioredis) {
 
 function reconnect(
   client: Ioredis,
-  factoryOptions: FactoryOptions,
+  reconnectOptions: ReconnectOptions,
   connectCount: number = 0,
 ) {
   return connect(client)?.catch((err) => {
-    if (connectCount >= (factoryOptions.reconnectCount as number)) {
-      if (typeof factoryOptions.onConnectError === 'function') {
-        factoryOptions.onConnectError(err);
+    if (connectCount >= (reconnectOptions.reconnectCount as number)) {
+      if (typeof reconnectOptions.onConnectError === 'function') {
+        reconnectOptions.onConnectError(err);
       }
       else {
         throw err;
       }
     }
     connectCount++;
-    return wait(factoryOptions.reconnectInterval as number).then(() => reconnect(client, factoryOptions, connectCount));
+    return wait(reconnectOptions.reconnectInterval as number).then(() => reconnect(client, reconnectOptions, connectCount));
   });
 }
 
 /**
  * @description 创建 Ioredis 客户端
  */
-export async function createIoredisClientFactory(
-  factoryOptions: FactoryOptions,
+export async function createIoredisClient(
+  reconnectOptions: ReconnectOptions,
   redisOptions: IoredisClientOptions,
 ) {
   const client = new Ioredis(redisOptions);
 
-  await reconnect(client, factoryOptions, 0);
+  await reconnect(client, reconnectOptions, 0);
 
   return client;
 }

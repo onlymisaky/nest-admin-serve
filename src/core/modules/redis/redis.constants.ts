@@ -1,1 +1,3 @@
-export const REDIS_CLIENT = 'REDIS_CLIENT';
+export const RedisClientToken = Symbol('REDIS_CLIENT');
+
+export const ClientTagToken = Symbol('CLIENT_TAG');

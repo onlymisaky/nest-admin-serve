@@ -8,6 +8,7 @@ import { AUTHORIZATION_SERVICE } from './constants';
 import { createTypeOrmOptions } from './database/typeorm.factory';
 import { AuthGuard } from './guards/auth.guard';
 import { PermissionGuard } from './guards/permission.guard';
+import { RedisModule } from './modules/redis/redis.module';
 import { IAuthorizationService } from './types/authorization-service';
 
 @Module({})
@@ -44,6 +45,28 @@ export class CoreModule {
           isGlobal: true,
           ignoreEnvFile: true,
           load: [getDefaultConfig, getConfig],
+        }),
+        RedisModule.register({
+          isGlobal: true,
+          connectorPackage: 'cache-manager',
+          inject: [ConfigService],
+          useFactory: (configService: ConfigService) => {
+            const host = configService.get('redis.host') as string;
+            const port = configService.get('redis.port') as number;
+            const database = configService.get('redis.database') as number;
+            // TODO: 类型提示需要完善
+            return {
+              port,
+              host,
+              db: database,
+
+              socket: {
+                host,
+                port,
+              },
+              database,
+            };
+          },
         }),
         TypeOrmModule.forRootAsync({
           inject: [ConfigService],

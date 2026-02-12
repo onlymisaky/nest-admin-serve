@@ -222,7 +222,7 @@ export class DomainEntity extends BaseEntityWithId {
 
   @Column({
     type: 'varchar', // sqlite does not support enum , use varchar instead
-    enum: DomainStatus,
+    // enum: DomainStatus,
     default: DomainStatus.PENDING,
     nullable: true,
     comment: '适用于存储枚举值，如状态、类型等预定义的选项',
