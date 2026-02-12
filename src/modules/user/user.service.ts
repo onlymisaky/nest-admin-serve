@@ -2,11 +2,13 @@ import { SafeService } from '@core/decorators/safe-service.decorator';
 import { IAuthorizationService } from '@core/types/authorization-service';
 import { Permission } from '@entities/permission.entity';
 import { User } from '@entities/user.entity';
-import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { md5 } from '@shared/utils';
 import { Request } from 'express';
 import { EntityManager } from 'typeorm';
+import { CacheResult } from '@/core/decorators/cache.decorator';
+import { RedisService } from '@/core/modules/redis/redis.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 
@@ -19,6 +21,9 @@ export class UserService implements IAuthorizationService {
   })
   @InjectEntityManager()
   private readonly entityManager: EntityManager;
+
+  @Inject(RedisService)
+  private readonly redisService: RedisService<'cache-manager'>;
 
   async register(registerUserDto: RegisterUserDto) {
     const user = new User();
@@ -59,6 +64,7 @@ export class UserService implements IAuthorizationService {
     return permissions.map((p) => p.name);
   }
 
+  @CacheResult((user) => `user:${user.id}:permissions`, { ttlSeconds: 600 })
   async getPermissionsByUser(user: Pick<User, 'id' | 'username'>): Promise<Permission[]> {
     const _user = await this.entityManager.findOne(User, {
       where: { id: user.id, username: user.username },
