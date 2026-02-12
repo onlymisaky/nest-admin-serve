@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException, UnprocessableEntityException } f
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SafeService } from '@/core/decorators/safe-service.decorator';
+import { RedisService } from '@/core/modules/redis';
 import { DomainEntity, DomainStatus } from '@/entities/domain.entity';
 import { ListQueryService } from '@/shared/service/list-query.service';
 import { createRangeFieldQueryConfig } from '@/shared/utils/range-dto';
@@ -16,6 +17,9 @@ export class DomainService {
   })
   @InjectRepository(DomainEntity)
   private readonly domainRepository: Repository<DomainEntity>;
+
+  @Inject(RedisService)
+  private readonly redisService: RedisService<'cache-manager'>;
 
   @Inject(ListQueryService)
   private readonly listQueryService: ListQueryService;
@@ -54,12 +58,14 @@ export class DomainService {
   async updateDomain(id: number, updateDomainDto: UpdateDomainDto) {
     const domain = await this.getDomain(id);
     await this.domainRepository.save({ ...domain, ...updateDomainDto });
+    await this.redisService.del(`domain:${id}`);
     return '更新成功';
   }
 
   async updateDomainEnum(id: number, enumm: DomainStatus) {
     const domain = await this.getDomain(id);
     await this.domainRepository.save({ ...domain, enum: enumm });
+    await this.redisService.del(`domain:${id}`);
     return 'enum更新成功';
   }
 
@@ -67,6 +73,7 @@ export class DomainService {
     const domain = await this.getDomain(id);
     domain.isDeleted = true;
     await this.domainRepository.save(domain);
+    await this.redisService.del(`domain:${id}`);
     return '删除成功';
   }
 }

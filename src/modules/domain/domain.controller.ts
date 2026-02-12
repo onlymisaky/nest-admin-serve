@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { CacheResponse } from '@/core/decorators/cache.decorator';
+import { PermissionRoute } from '@/core/decorators/permission-route.decorator';
 import { PublicRoute } from '@/core/decorators/public-route.decorator';
 import { DomainStatus } from '@/entities/domain.entity';
 import { DomainService } from './domain.service';
@@ -19,6 +21,8 @@ export class DomainController {
     return this.domainService.deleteDomain(id);
   }
 
+  @PermissionRoute('domain:*')
+  @CacheResponse((req) => `domain:${req.params.id}`)
   @Get(':id')
   async getDomain(@Param('id') id: number) {
     return this.domainService.getDomain(id);
