@@ -38,6 +38,7 @@ export async function createClient<T extends ConnectorPackage>(
     console.error('redis 连接失败');
     console.error(error);
     console.warn('使用 cache-manager 代替');
+    cacheManager[ClientTagToken] = 'cache-manager';
     return cacheManager;
   }
 }

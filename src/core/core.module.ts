@@ -48,7 +48,7 @@ export class CoreModule {
         }),
         RedisModule.register({
           isGlobal: true,
-          connectorPackage: 'cache-manager',
+          connectorPackage: 'redis',
           inject: [ConfigService],
           useFactory: (configService: ConfigService) => {
             const host = configService.get('redis.host') as string;
