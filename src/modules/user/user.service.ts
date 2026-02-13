@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { EntityManager } from 'typeorm';
 import { CacheResult } from '@/core/decorators/cache.decorator';
 import { RedisService } from '@/core/modules/redis/redis.service';
+import { CacheKeyUserPermissions } from '@/shared/constants/cache-key';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 
@@ -64,7 +65,7 @@ export class UserService implements IAuthorizationService {
     return permissions.map((p) => p.name);
   }
 
-  @CacheResult((user) => `user:${user.id}:permissions`, { ttlSeconds: 600 })
+  @CacheResult((user) => CacheKeyUserPermissions(user.id), { ttlSeconds: 600 })
   async getPermissionsByUser(user: Pick<User, 'id' | 'username'>): Promise<Permission[]> {
     const _user = await this.entityManager.findOne(User, {
       where: { id: user.id, username: user.username },

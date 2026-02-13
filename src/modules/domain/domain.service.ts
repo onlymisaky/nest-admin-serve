@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException, UnprocessableEntityException } f
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SafeService } from '@/core/decorators/safe-service.decorator';
-import { RedisService } from '@/core/modules/redis';
+import { RedisService } from '@/core/modules/redis/redis.service';
 import { DomainEntity, DomainStatus } from '@/entities/domain.entity';
 import { ListQueryService } from '@/shared/service/list-query.service';
 import { createRangeFieldQueryConfig } from '@/shared/utils/range-dto';

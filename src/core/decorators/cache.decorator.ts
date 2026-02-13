@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { RedisService } from '../modules/redis';
+import { RedisService } from '../modules/redis/redis.service';
 
 export const CACHE_METADATA = 'cache_metadata';
 

@@ -3,6 +3,7 @@ import { CacheResponse } from '@/core/decorators/cache.decorator';
 import { PermissionRoute } from '@/core/decorators/permission-route.decorator';
 import { PublicRoute } from '@/core/decorators/public-route.decorator';
 import { DomainStatus } from '@/entities/domain.entity';
+import { CacheKeyDomainDetail } from '@/shared/constants/cache-key';
 import { DomainService } from './domain.service';
 import { CreateDomainDto, QueryDomainListDto, UpdateDomainDto } from './dto/domain.dto';
 
@@ -22,7 +23,7 @@ export class DomainController {
   }
 
   @PermissionRoute('domain:*')
-  @CacheResponse((req) => `domain:${req.params.id}`)
+  @CacheResponse((req) => CacheKeyDomainDetail(req.params.id))
   @Get(':id')
   async getDomain(@Param('id') id: number) {
     return this.domainService.getDomain(id);
